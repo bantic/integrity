@@ -154,6 +154,16 @@ describe Integrity::Project do
       @project.build
       @project.should_not be_building
     end
+    
+    it "should record the time the build started at" do
+      time_now = Time.now
+      Time.stub!(:now).and_return(time_now)
+      
+      @builder.should_receive(:build) do
+        @project.started_build_at.should == DateTime.parse(time_now.to_s)
+      end
+      @project.build
+    end
 
     it "should ensure 'building?' is false even if the build raises an exception" do
       lambda {

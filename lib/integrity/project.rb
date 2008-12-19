@@ -9,7 +9,7 @@ module Integrity
     property :branch,     String,   :nullable => false, :default => "master"
     property :command,    String,   :nullable => false, :length => 255, :default => "rake"
     property :public,     Boolean,  :default => true
-    property :building,   Boolean,  :default => false
+    property :started_build_at,   DateTime
     property :created_at, DateTime
     property :updated_at, DateTime
 
@@ -23,11 +23,15 @@ module Integrity
 
     def build(commit_identifier="HEAD")
       return if building?
-      update_attributes(:building => true)
+      update_attributes(:started_build_at => Time.now)
       Builder.new(self).build(commit_identifier)
     ensure
-      update_attributes(:building => false)
+      update_attributes(:started_build_at => nil)
       send_notifications
+    end
+
+    def building?
+      !started_build_at.nil?
     end
 
     def last_build

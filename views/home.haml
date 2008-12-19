@@ -12,7 +12,7 @@
         %a{ :href => project_url(project) }&= project.name
         .meta
           - if project.building?
-            Building!
+            = "Building for #{pretty_time_since(project.started_build_at)}"
           - elsif project.last_build.nil?
             Never built yet
           - else

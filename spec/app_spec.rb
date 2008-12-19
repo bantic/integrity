@@ -71,8 +71,8 @@ describe 'Web App' do
 
     describe "with available projects" do
       before do
-        @project_1 = stub("project", :name => "The 1st Project", :permalink => "the-1st-project", :status => :success, :building? => true, :last_build => mock_build)
-        @project_2 = stub("project", :name => "The 2nd Project", :permalink => "the-2nd-project", :status => :failed, :building? => false, :last_build => mock_build)
+        @project_1 = stub("project", :name => "The 1st Project", :permalink => "the-1st-project", :status => :success, :building? => true, :started_build_at => Time.now, :last_build => mock_build)
+        @project_2 = stub("project", :name => "The 2nd Project", :permalink => "the-2nd-project", :status => :failed, :building? => false, :started_build_at => nil, :last_build => mock_build)
         Project.stub!(:all).and_return([@project_1, @project_2])
       end
 
@@ -102,6 +102,16 @@ describe 'Web App' do
       it "should mark projects being built as such" do
         get_it "/"
         body.should have_tag('#projects li.building a', :count => 1)
+      end
+      
+      it "should show the build time" do
+        date1 = DateTime.new(2008,12,18,15,30,0)
+        date2 = Time.parse(date1.to_s) + 77
+        @project_1.should_receive(:started_build_at).and_return(date1)
+        Time.stub!(:now).and_return(date2)
+        
+        get_it "/"
+        body.should have_tag('#projects li.building .meta', /Building for 1m17s/)
       end
 
       it "should have a link to add a new project" do
