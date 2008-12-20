@@ -260,7 +260,7 @@ helpers do
     seconds = Time.now - Time.parse(date_time.to_s)
     seconds = seconds.round
     if seconds < 60
-      "#{seconds.round}s"
+      "#{seconds}s"
     else
       minutes = seconds / 60
       remainder_seconds = seconds % 60
