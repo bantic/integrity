@@ -24,10 +24,14 @@ module Integrity
     def build(commit_identifier="HEAD")
       return if building?
       update_attributes(:started_build_at => Time.now)
-      Builder.new(self).build(commit_identifier)
-    ensure
-      update_attributes(:started_build_at => nil)
-      send_notifications
+      Thread.new(self) do |project|
+        begin
+          Builder.new(project).build(commit_identifier)
+        ensure
+          project.update_attributes(:started_build_at => nil)
+          project.send_notifications
+        end
+      end
     end
 
     def building?
