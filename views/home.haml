@@ -11,16 +11,16 @@
       %li{ :class => cycle("even", "odd") + (project.building? ? ' building' : '') + (project.last_build ? (project.last_build.successful? ? ' success' : ' failed') : '') }
         %a{ :href => project_url(project) }&= project.name
         .meta
+          - last_build = project.last_build
+          - short_commit_identifier = last_build ? last_build.short_commit_identifier : "unknown commit"
+          - commit_message = last_build ? last_build.commit_message : "unknown commit message"
+          - shortened_commit_message = commit_message ? commit_message.slice(0,40) + "..." : "unknown commit message"
           - if project.building?
-            - last_build = project.last_build
-            - short_commit_identifier = last_build ? last_build.short_commit_identifier : "unknown commit"
-            - commit_message = last_build ? last_build.commit_message : "unknown commit message"
-            - shortened_commit_message = commit_message ? commit_message.slice(0,40) + "..." : "unknown commit message"
             = "Building #{short_commit_identifier} (#{shortened_commit_message}) for #{pretty_time_since(project.started_build_at)}"
           - elsif project.last_build.nil?
             Never built yet
           - else
-            = "Built #{project.last_build.short_commit_identifier}"
+            = "Built #{short_commit_identifier} (#{shortened_commit_message}) "
             = project.last_build.successful? ? "successfully" : "and failed"
   %p#new
     %a{ :href => "/new" } Add a new project
