@@ -10,11 +10,17 @@ module Integrity
       @branch = project.branch
       @scm = SCM.new(@uri, @branch, export_directory)
       @build = Build.new(:project => project)
+      @project = project
     end
 
     def build(commit)
       Integrity.log "Building #{commit} (#{@branch}) of #{@build.project.name} in #{export_directory} using #{scm_name}"
-      @scm.with_revision(commit) { run_build_script }
+      @scm.with_revision(commit) { 
+        @project.update_attributes(:shortened_current_commit_msg => @scm.commit_metadata(commit)[:message][0..40])
+        @project.update_attributes(:current_commit_identifier => @scm.commit_identifier(commit)[0..6])
+        
+        run_build_script
+      }
       @build
     ensure
       @build.commit_identifier = @scm.commit_identifier(commit)

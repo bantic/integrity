@@ -10,6 +10,8 @@ module Integrity
     property :command,    String,   :nullable => false, :length => 255, :default => "rake"
     property :public,     Boolean,  :default => true
     property :started_build_at,   DateTime
+    property :shortened_current_commit_msg, String
+    property :current_commit_identifier, String
     property :created_at, DateTime
     property :updated_at, DateTime
 
@@ -24,6 +26,8 @@ module Integrity
     def build(commit_identifier="HEAD")
       return if building?
       update_attributes(:started_build_at => Time.now)
+      update_attributes(:current_commit_identifier => "unknown commit id")
+      update_attributes(:shortened_current_commit_msg => "unknown msg")
       Thread.new(self) do |project|
         begin
           Builder.new(project).build(commit_identifier)

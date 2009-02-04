@@ -123,7 +123,7 @@ post "/:project/builds" do
   login_required
 
   current_project.build
-  redirect project_url(@project)
+  redirect "/"
 end
 
 get '/:project/builds/:build' do
